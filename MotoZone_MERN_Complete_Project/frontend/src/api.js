@@ -1,0 +1,2 @@
+const BASE=import.meta.env.VITE_API_URL||'http://localhost:5000/api';
+export async function api(path,opts={}){const token=localStorage.getItem('mz_token');const headers={...(opts.body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:`Bearer ${token}`}:{})};const r=await fetch(BASE+path,{...opts,headers});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.message||'Request failed');return data;}

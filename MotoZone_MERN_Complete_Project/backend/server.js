@@ -1,0 +1,18 @@
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import auth from './routes/auth.js';
+import bikes from './routes/bikes.js';
+import bookings from './routes/bookings.js';
+dotenv.config();
+const app = express();
+app.use(cors({origin: process.env.CLIENT_URL || 'http://localhost:5173'}));
+app.use(express.json());
+app.get('/api/health', (_req,res)=>res.json({message:'MotoZone API is running'}));
+app.use('/api/auth', auth);
+app.use('/api/bikes', bikes);
+app.use('/api/bookings', bookings);
+app.use((err,_req,res,_next)=>{ console.error(err); res.status(500).json({message:err.message || 'Server error'}); });
+if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) throw new Error('Set MONGODB_URI and JWT_SECRET in backend/.env');
+mongoose.connect(process.env.MONGODB_URI).then(()=>app.listen(process.env.PORT || 5000,()=>console.log('API running on port 5000; MongoDB connected'))).catch(e=>{console.error(e);process.exit(1)});
